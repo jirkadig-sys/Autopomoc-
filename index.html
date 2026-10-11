@@ -1,1 +1,361 @@
+<!doctype html>
+<html lang="cs">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="theme-color" content="#10151d">
+  <meta name="description" content="AutoPomoc – přehled možných příčin závad a kontrol pro vaše auto.">
+  <title>AutoPomoc – pomoc s autem</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg: #0b1016;
+      --panel: #141c26;
+      --panel2: #1a2532;
+      --line: #293746;
+      --text: #f2f6fb;
+      --muted: #a4b2c1;
+      --accent: #ffb020;
+      --accent2: #ffd27a;
+      --green: #5cdb9a;
+      --red: #ff7676;
+      --radius: 18px;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0; min-height: 100vh; background:
+      radial-gradient(ellipse at top right, rgba(255,176,32,.09), transparent 35%),
+      var(--bg); color: var(--text);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.45;
+    }
+    button, input, select, textarea { font: inherit; }
+    button { cursor: pointer; }
+    .wrap { max-width: 760px; margin: 0 auto; padding: 20px 16px 42px; }
+    header { display:flex; align-items:center; gap:12px; margin: 5px 0 24px; }
+    .logo { width:48px; height:48px; display:grid; place-items:center; background:var(--accent); color:#15191f; border-radius:15px; font-size:25px; font-weight:900; box-shadow:0 7px 25px #ffb02025; }
+    h1 { font-size:23px; margin:0; letter-spacing:-.5px; }
+    .tagline { color:var(--muted); font-size:13px; margin-top:2px; }
+    .status { margin-left:auto; border:1px solid #365443; color:var(--green); background:#10251c; border-radius:999px; padding:6px 9px; font-size:11px; white-space:nowrap; }
+    .hero { padding:22px; border:1px solid var(--line); border-radius:24px; background:linear-gradient(135deg,#1a2734,#111820 70%); margin-bottom:18px; position:relative; overflow:hidden; }
+    .hero:after { content:""; position:absolute; width:180px; height:180px; border:25px solid #ffb0200c; border-radius:50%; right:-55px; top:-65px; pointer-events:none; }
+    .eyebrow { color:var(--accent); font-size:11px; font-weight:800; letter-spacing:1.5px; text-transform:uppercase; }
+    .hero h2 { font-size:27px; line-height:1.15; margin:9px 0; max-width:440px; letter-spacing:-.7px; }
+    .hero p { margin:0; color:var(--muted); max-width:480px; font-size:14px; }
+    .section-title { font-size:17px; margin:24px 0 12px; }
+    .card { background:var(--panel); border:1px solid var(--line); border-radius:var(--radius); padding:18px; margin-bottom:14px; }
+    .field-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+    label { display:block; color:#c7d1dc; font-size:12px; font-weight:650; margin:0 0 7px; }
+    input, select, textarea { width:100%; min-width:0; background:#0d141c; color:var(--text); border:1px solid #344454; border-radius:12px; padding:12px 13px; outline:none; }
+    input:focus, select:focus, textarea:focus { border-color:var(--accent); box-shadow:0 0 0 3px #ffb0201a; }
+    textarea { min-height:100px; resize:vertical; }
+    .field { margin-bottom:14px; }
+    .hint { color:var(--muted); font-size:12px; margin-top:6px; }
+    .btn { width:100%; border:0; border-radius:13px; padding:14px 16px; font-weight:800; background:var(--accent); color:#17191d; transition:transform .12s,filter .12s; }
+    .btn:active { transform:scale(.99); }
+    .btn.secondary { background:var(--panel2); color:var(--text); border:1px solid var(--line); }
+    .btn.small { width:auto; padding:9px 12px; font-size:12px; }
+    .actions { display:flex; gap:10px; flex-wrap:wrap; }
+    .result { display:none; }
+    .result.show { display:block; }
+    .result h3 { margin:7px 0 9px; font-size:21px; }
+    .notice { border:1px solid #6b5126; background:#2a2113; color:#ffe1a3; border-radius:13px; padding:12px; font-size:13px; margin:12px 0; }
+    .urgent { border-color:#773a3a; background:#2c171a; color:#ffc1c1; }
+    .cause { border:1px solid var(--line); border-radius:13px; padding:13px; margin-top:9px; background:#101720; }
+    .cause strong { display:block; margin-bottom:4px; }
+    .cause p { margin:0; font-size:13px; color:var(--muted); }
+    .pill { display:inline-block; border:1px solid #354555; color:#c9d6e3; border-radius:999px; font-size:11px; padding:4px 8px; margin:0 5px 5px 0; }
+    .saved-item { padding:12px 0; border-bottom:1px solid var(--line); }
+    .saved-item:last-child { border-bottom:0; }
+    .saved-item strong { display:block; }
+    .saved-item small { color:var(--muted); }
+    .empty { color:var(--muted); font-size:13px; padding:8px 0; }
+    footer { text-align:center; color:#788897; font-size:11px; padding:20px 8px 0; }
+    @media (max-width:520px) {
+      .wrap { padding:14px 12px 32px; }
+      .hero { padding:19px; }
+      .hero h2 { font-size:24px; }
+      .field-grid { grid-template-columns:1fr; gap:0; }
+      .status { font-size:10px; padding:5px 7px; }
+    }
+  </style>
+</head>
+<body>
+  <main class="wrap">
+    <header>
+      <div class="logo" aria-hidden="true">A</div>
+      <div>
+        <h1>AutoPomoc</h1>
+        <div class="tagline">Praktická pomoc pro řidiče</div>
+      </div>
+      <div class="status">● PROTOTYP</div>
+    </header>
 
+    <section class="hero">
+      <div class="eyebrow">Diagnostika začíná tady</div>
+      <h2>Co trápí vaše auto?</h2>
+      <p>Popište příznaky nebo zadejte chybový kód. Získáte orientační možné příčiny a tipy, co bezpečně zkontrolovat jako první.</p>
+    </section>
+
+    <h2 class="section-title">1. Vaše auto</h2>
+    <section class="card">
+      <div class="field-grid">
+        <div class="field">
+          <label for="make">Značka</label>
+          <select id="make">
+            <option>Škoda</option><option>Volkswagen</option><option>Audi</option><option>SEAT</option>
+            <option>BMW</option><option>Mercedes-Benz</option><option>Ford</option><option>Opel</option>
+            <option>Peugeot</option><option>Citroën</option><option>Renault</option><option>Dacia</option>
+            <option>Toyota</option><option>Hyundai</option><option>Kia</option><option>Honda</option>
+            <option>Mazda</option><option>Nissan</option><option>Volvo</option><option>Fiat</option>
+            <option> jiné / neuvedeno</option>
+          </select>
+        </div>
+        <div class="field">
+          <label for="model">Model</label>
+          <input id="model" placeholder="Např. Octavia II">
+        </div>
+        <div class="field">
+          <label for="year">Rok výroby</label>
+          <input id="year" type="number" inputmode="numeric" min="1950" max="2027" placeholder="Např. 2010">
+        </div>
+        <div class="field">
+          <label for="fuel">Palivo</label>
+          <select id="fuel"><option>Nafta</option><option>Benzín</option><option>LPG</option><option>CNG</option><option>Hybrid</option><option>Elektřina</option><option>Nevím</option></select>
+        </div>
+      </div>
+      <button class="btn secondary" id="saveCar" type="button">＋ Uložit auto do tohoto telefonu</button>
+      <div class="hint">Zatím se údaje ukládají jen v tomto prohlížeči. Neodesílají se na server.</div>
+    </section>
+
+    <h2 class="section-title">2. Popište závadu</h2>
+    <section class="card">
+      <div class="field">
+        <label for="symptom">Co auto dělá?</label>
+        <textarea id="symptom" placeholder="Např. při přidání plynu ztrácí výkon, kouří černě a po restartu chvíli jede normálně…"></textarea>
+      </div>
+      <div class="field">
+        <label for="code">Chybový kód z diagnostiky (nepovinné)</label>
+        <input id="code" autocapitalize="characters" placeholder="Např. P0299">
+        <div class="hint">Kód najdete na diagnostice OBD. Pokud ho nemáte, nechte pole prázdné.</div>
+      </div>
+      <button class="btn" id="diagnose" type="button">Najít možné příčiny →</button>
+    </section>
+
+    <section class="card result" id="result" aria-live="polite">
+      <div class="eyebrow">Orientační výsledek</div>
+      <h3 id="resultTitle">Možné příčiny</h3>
+      <div id="resultMeta"></div>
+      <div id="resultNotice" class="notice">Toto není potvrzená diagnóza.</div>
+      <div id="causes"></div>
+      <div class="actions" style="margin-top:14px">
+        <button class="btn secondary small" id="saveIssue" type="button">Uložit do historie</button>
+        <button class="btn secondary small" id="clearResult" type="button">Nový dotaz</button>
+      </div>
+    </section>
+
+    <h2 class="section-title">Moje auta a historie</h2>
+    <section class="card">
+      <div id="savedCars"><div class="empty">Zatím nemáte uložené žádné auto.</div></div>
+      <div style="height:1px;background:var(--line);margin:8px 0"></div>
+      <div id="history"><div class="empty">Zatím tu nejsou uložené žádné závady.</div></div>
+      <div class="actions" style="margin-top:12px">
+        <button class="btn secondary small" id="exportData" type="button">Exportovat data</button>
+        <button class="btn secondary small" id="clearData" type="button">Smazat uložená data</button>
+      </div>
+    </section>
+
+    <footer>
+      AutoPomoc · první testovací verze · Informace jsou orientační, nikoli odborná diagnóza.
+    </footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const STORE = { cars: "autopomoc_cars_v1", history: "autopomoc_history_v1" };
+    let lastResult = null;
+
+    function readStore(key) {
+      try { return JSON.parse(localStorage.getItem(key) || "[]"); } catch { return []; }
+    }
+    function writeStore(key, value) {
+      try { localStorage.setItem(key, JSON.stringify(value)); return true; }
+      catch { alert("Telefon nedovolil uložit data. Zkontrolujte nastavení prohlížeče."); return false; }
+    }
+    function carInfo() {
+      return {
+        make: $("make").value.trim(),
+        model: $("model").value.trim(),
+        year: $("year").value.trim(),
+        fuel: $("fuel").value
+      };
+    }
+    function carLabel(car) {
+      return [car.make, car.model, car.year].filter(Boolean).join(" ") || "Auto bez názvu";
+    }
+    function diagnose() {
+      const symptom = $("symptom").value.trim();
+      const code = $("code").value.trim().toUpperCase();
+      if (!symptom && !code) {
+        alert("Napište příznak závady nebo zadejte chybový kód.");
+        $("symptom").focus();
+        return;
+      }
+
+      const text = (symptom + " " + code).toLowerCase();
+      let title = "Závadu je potřeba upřesnit";
+      let causes = [
+        ["Začněte základní kontrolou", "Poznamenejte si, kdy se problém objevuje, zda svítí kontrolka a jestli se změnilo chování auta. Bez dalších údajů nelze příčinu spolehlivě určit."],
+        ["Načtení diagnostiky", "Pokud svítí kontrolka motoru, načtěte chybové kódy OBD a poznamenejte si i doplňující údaje. Samotný kód nemusí určit vadný díl."]
+      ];
+      let urgent = false;
+
+      if (/\bp0299\b/.test(text) || text.includes("nedostatečný plnicí tlak") || text.includes("underboost")) {
+        title = "Možný problém s plnicím tlakem";
+        causes = [
+          ["Hadice sání nebo tlakové vedení", "Prasklá, uvolněná nebo netěsná hadice může způsobit ztrátu výkonu. Vizuální kontrolu provádějte pouze u vypnutého a vychladlého motoru."],
+          ["Regulace turbodmychadla", "Možný problém s podtlakovým vedením, ovládáním nebo regulačním mechanismem."],
+          ["Turbodmychadlo nebo snímače", "Závadu je nutné potvrdit měřenými hodnotami a dalšími kódy; samotný P0299 neznamená automaticky vadné turbo."]
+        ];
+      } else if (/\bp030[0-9]\b/.test(text) || text.includes("vynechává") || text.includes("vynechav")) {
+        title = "Možné vynechávání spalování";
+        causes = [
+          ["Zapalování (zejména benzín)", "Možná svíčka, zapalovací cívka nebo jejich vedení."],
+          ["Palivo nebo vstřikování", "Příčinou může být také dodávka paliva nebo vstřikovač."],
+          ["Další příčiny", "Vadný snímač, netěsnost sání nebo mechanický problém vyžaduje odborné ověření."]
+        ];
+      } else if (text.includes("čern") && text.includes("kouř")) {
+        title = "Černý kouř z výfuku";
+        causes = [
+          ["Málo vzduchu nebo netěsnost sání", "Zkontrolujte stav vzduchového filtru a viditelné poškození hadic sání."],
+          ["Regulace turba nebo EGR", "U dieselového motoru může být problém s plnicím tlakem, EGR nebo měřením vzduchu."],
+          ["Vstřikování paliva", "Příliš bohatá směs nebo problém vstřikování je další možnost; potřebuje diagnostiku."]
+        ];
+      } else if (text.includes("ztrác") && text.includes("výkon") || text.includes("nouzák") || text.includes("nouzovy režim") || text.includes("nouzový režim")) {
+        title = "Ztráta výkonu nebo nouzový režim";
+        causes = [
+          ["Chybové kódy motoru", "Nejdřív načtěte uložené i čekající kódy. Nevyměňujte díly pouze podle příznaku."],
+          ["Sání, turbo nebo EGR", "U přeplňovaných motorů se kontroluje plnicí tlak, hadice, ovládání turba a systém EGR."],
+          ["Palivová soustava nebo snímače", "Příčinou může být i tlak paliva nebo chybná hodnota některého snímače."]
+        ];
+      } else if (text.includes("nestart") || text.includes("nenastart")) {
+        title = "Motor nejde nastartovat";
+        causes = [
+          ["Baterie a svorky", "Všímejte si, zda startér točí pomalu, jen cvaká, nebo se vůbec neozve."],
+          ["Startér nebo napájení", "Zkontrolujte bezpečně viditelné spoje a pojistky podle návodu vozidla."],
+          ["Palivo, zapalování nebo imobilizér", "Pokud motor točí, ale nechytá, je potřeba další diagnostika podle typu motoru."]
+        ];
+      } else if (text.includes("teplot") || text.includes("přehřív") || text.includes("prehriv") || text.includes("90 °c") || text.includes("90c")) {
+        title = "Problém s teplotou motoru";
+        causes = [
+          ["Hladina chladicí kapaliny", "Kontrolujte pouze na studeném motoru. Nikdy neotvírejte horkou expanzní nádobku."],
+          ["Termostat nebo snímač teploty", "Příliš nízká či nestabilní teplota může souviset s termostatem nebo měřením teploty."],
+          ["Chladicí soustava", "Při přehřívání, úniku kapaliny nebo varování motor odstavte a nechte vychladnout."]
+        ];
+        if (text.includes("přehřív") || text.includes("prehriv")) urgent = true;
+      } else if (text.includes("brzd") || text.includes("pedál") || text.includes("pedal")) {
+        title = "Možná závada brzd – vysoká priorita";
+        urgent = true;
+        causes = [
+          ["Nejezděte s nejistými brzdami", "Pokud pedál propadá, brzdy zabírají nepravidelně nebo je nutné pumpovat, vozidlo dál neřiďte."],
+          ["Kontrola v servisu", "Brzdový systém musí zkontrolovat odborník. Příčin může být více a nelze ji bezpečně určit z popisu."]
+        ];
+      } else if (text.includes("olej") && (text.includes("tlak") || text.includes("kontrolka"))) {
+        title = "Upozornění na tlak oleje";
+        urgent = true;
+        causes = [
+          ["Motor bezpečně vypněte", "Pokud svítí červená kontrolka tlaku oleje za chodu motoru, bezpečně zastavte a motor vypněte."],
+          ["Další kontrola", "Pokračování v jízdě může motor vážně poškodit. Zajistěte odbornou kontrolu nebo odtah."]
+        ];
+      } else if (code.startsWith("P")) {
+        title = "Zadaný chybový kód: " + code;
+        causes = [
+          ["Ověřte přesný význam kódu", "Význam se může lišit podle výrobce a konkrétního motoru. Zapište také další kódy a provozní údaje."],
+          ["Nevyměňujte díly naslepo", "Kód ukazuje na zjištěnou odchylku, ne vždy přímo na vadný díl. Pro přesnější postup doplňte příznaky a údaje o autě."]
+        ];
+      }
+
+      const car = carInfo();
+      lastResult = { car, symptom, code, title, causes, urgent, date: new Date().toLocaleString("cs-CZ") };
+      $("resultTitle").textContent = title;
+      $("resultMeta").innerHTML = "";
+      [carLabel(car), car.fuel, code ? "Kód " + code : "Bez kódu"].forEach(v => {
+        const span = document.createElement("span"); span.className = "pill"; span.textContent = v; $("resultMeta").appendChild(span);
+      });
+      $("resultNotice").className = "notice" + (urgent ? " urgent" : "");
+      $("resultNotice").textContent = urgent
+        ? "BEZPEČNOSTNÍ UPOZORNĚNÍ: Nejezděte, pokud závada může ohrozit bezpečnost. Zajistěte odbornou kontrolu."
+        : "Toto jsou pouze možné příčiny, ne potvrzená diagnóza. Při vážných příznacích nebo nejistotě kontaktujte servis.";
+      $("causes").innerHTML = "";
+      causes.forEach(([heading, desc]) => {
+        const article = document.createElement("article"); article.className = "cause";
+        const strong = document.createElement("strong"); strong.textContent = heading;
+        const p = document.createElement("p"); p.textContent = desc;
+        article.append(strong, p); $("causes").appendChild(article);
+      });
+      $("result").classList.add("show");
+      $("result").scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+
+    function renderCars() {
+      const cars = readStore(STORE.cars), root = $("savedCars");
+      root.innerHTML = "";
+      if (!cars.length) root.innerHTML = '<div class="empty">Zatím nemáte uložené žádné auto.</div>';
+      cars.forEach((car, i) => {
+        const item = document.createElement("div"); item.className = "saved-item";
+        const title = document.createElement("strong"); title.textContent = carLabel(car);
+        const small = document.createElement("small"); small.textContent = car.fuel || "";
+        const load = document.createElement("button"); load.className = "btn secondary small"; load.textContent = "Vybrat";
+        load.addEventListener("click", () => {
+          $("make").value = car.make; $("model").value = car.model; $("year").value = car.year; $("fuel").value = car.fuel;
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        });
+        const del = document.createElement("button"); del.className = "btn secondary small"; del.textContent = "Smazat";
+        del.addEventListener("click", () => { const next = readStore(STORE.cars); next.splice(i, 1); writeStore(STORE.cars, next); renderCars(); });
+        const actions = document.createElement("div"); actions.className = "actions"; actions.style.marginTop = "8px"; actions.append(load, del);
+        item.append(title, small, actions); root.appendChild(item);
+      });
+    }
+    function renderHistory() {
+      const history = readStore(STORE.history), root = $("history");
+      root.innerHTML = "<strong style='font-size:13px'>Uložené závady</strong>";
+      if (!history.length) { root.innerHTML += '<div class="empty">Zatím tu nejsou uložené žádné závady.</div>'; return; }
+      history.slice().reverse().forEach(item => {
+        const row = document.createElement("div"); row.className = "saved-item";
+        const title = document.createElement("strong"); title.textContent = item.title;
+        const small = document.createElement("small"); small.textContent = item.date + " · " + carLabel(item.car) + (item.code ? " · " + item.code : "");
+        row.append(title, small); root.appendChild(row);
+      });
+    }
+    $("saveCar").addEventListener("click", () => {
+      const car = carInfo();
+      if (!car.model && !car.year) { alert("Vyplňte alespoň model nebo rok výroby."); return; }
+      const cars = readStore(STORE.cars);
+      if (!cars.some(c => carLabel(c) === carLabel(car) && c.fuel === car.fuel)) cars.push(car);
+      if (writeStore(STORE.cars, cars)) { renderCars(); alert("Auto bylo uloženo v tomto telefonu."); }
+    });
+    $("diagnose").addEventListener("click", diagnose);
+    $("saveIssue").addEventListener("click", () => {
+      if (!lastResult) return;
+      const history = readStore(STORE.history); history.push(lastResult);
+      if (writeStore(STORE.history, history)) { renderHistory(); alert("Závada byla uložena."); }
+    });
+    $("clearResult").addEventListener("click", () => {
+      $("symptom").value = ""; $("code").value = ""; $("result").classList.remove("show"); lastResult = null;
+      $("symptom").focus();
+    });
+    $("exportData").addEventListener("click", () => {
+      const data = { cars: readStore(STORE.cars), history: readStore(STORE.history) };
+      const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+      const url = URL.createObjectURL(blob); const a = document.createElement("a");
+      a.href = url; a.download = "autopomoc-data.json"; a.click(); URL.revokeObjectURL(url);
+    });
+    $("clearData").addEventListener("click", () => {
+      if (confirm("Opravdu smazat všechna uložená auta a historii v tomto prohlížeči?")) {
+        localStorage.removeItem(STORE.cars); localStorage.removeItem(STORE.history); renderCars(); renderHistory();
+      }
+    });
+    renderCars(); renderHistory();
+  </script>
+</body>
+</html>
