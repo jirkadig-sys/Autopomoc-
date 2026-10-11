@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#172554">
+<title>AutoPomoc</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#eef2f7;color:#172033}
+header{background:#172554;color:white;padding:22px 16px;text-align:center}
+header h1{margin:0;font-size:28px}
+header p{margin:8px 0 0;color:#dbeafe}
+main{max-width:700px;margin:auto;padding:14px}
+nav{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+button{border:0;border-radius:10px;padding:13px;background:#1d4ed8;color:white;font-weight:bold;font-size:15px;cursor:pointer}
+nav button{background:white;color:#172554;border:1px solid #d5deeb}
+nav button.active{background:#1d4ed8;color:white}
+.panel{display:none;background:white;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 2px 8px #0000000b}
+.panel.active{display:block}
+h2{font-size:21px;margin-top:0}
+label{display:block;font-weight:bold;margin:12px 0 6px}
+input,select,textarea{width:100%;padding:12px;border:1px solid #cbd5e1;border-radius:9px;font-size:16px;background:white}
+textarea{min-height:85px}
+.action{width:100%;margin-top:12px}
+.result{background:#eff6ff;padding:12px;border-radius:10px;margin-top:12px;white-space:pre-wrap}
+.item{border:1px solid #dbe2ec;border-radius:10px;padding:12px;margin-top:10px}
+.small{font-size:13px;color:#64748b}
+footer{text-align:center;color:#64748b;font-size:12px;padding:15px}
+</style>
+</head>
+<body>
+<header>
+<h1>🔧 AutoPomoc</h1>
+<p>Pomoc s autem jednoduše a česky</p>
+</header>
+<main>
+<nav>
+<button class="active" onclick="showTab('zavady',this)">🔍 Závady</button>
+<button onclick="showTab('obd',this)">🖥️ OBD kódy</button>
+<button onclick="showTab('kontrolky',this)">🚨 Kontrolky</button>
+<button onclick="showTab('auta',this)">🚗 Moje auta</button>
+<button onclick="showTab('servis',this)">🛠️ Servis</button>
+<button onclick="showTab('bezpecnost',this)">ℹ️ Bezpečnost</button>
+</nav>
+
+<section id="zavady" class="panel active">
+<h2>Vyhledat závadu</h2>
+<label>Co auto dělá?</label>
+<select id="symptom">
+<option value="">Vyber příznak</option>
+<option>Motor nejde nastartovat</option>
+<option>Motor ztrácí výkon</option>
+<option>Motor kouří černě</option>
+<option>Motor se přehřívá</option>
+<option>Motor se dlouho zahřívá</option>
+<option>Auto cuká při jízdě</option>
+<option>Svítí kontrolka motoru</option>
+<option>Brzdy špatně brzdí</option>
+<option>Auto vibruje</option>
+<option>Roste spotřeba paliva</option>
+</select>
+<label>Další informace</label>
+<textarea id="detail" placeholder="Například značka, motor, kdy se závada projevuje…"></textarea>
+<button class="action" onclick="findFault()">Najít možné příčiny</button>
+<div id="faultResult" class="result" hidden></div>
+</section>
+
+<section id="obd" class="panel">
+<h2>Vysvětlení OBD kódu</h2>
+<label>Diagnostický kód</label>
+<input id="obdCode" placeholder="Například P0299">
+<button class="action" onclick="findOBD()">Vysvětlit kód</button>
+<div id="obdResult" class="result" hidden></div>
+<p class="small">Kód ukazuje oblast problému, ne vždy přesně vadný díl. Před výměnou dílů je nutná diagnostika.</p>
+</section>
+
+<section id="kontrolky" class="panel">
+<h2>Význam kontrolek</h2>
+<label>Vyber kontrolku</label>
+<select id="light">
+<option value="">Vyber kontrolku</option>
+<option value="oil">🛢️ Tlak oleje – červená</option>
+<option value="temp">🌡️ Teplota motoru – červená</option>
+<option value="brake">❗ Brzdy – červená</option>
+<option value="engine">🟠 Motor – oranžová</option>
+<option value="battery">🔋 Dobíjení – červená</option>
+<option value="dpf">DPF – filtr pevných částic</option>
+<option value="abs">ABS</option>
+</select>
+<button class="action" onclick="findLight()">Co kontrolka znamená?</button>
+<div id="lightResult" class="result" hidden></div>
+</section>
+
+<section id="auta" class="panel">
+<h2>Moje auta</h2>
+<label>Značka a model</label><input id="carName" placeholder="Škoda Octavia II">
+<label>Rok výroby</label><input id="carYear" placeholder="2010" inputmode="numeric">
+<label>Motor</label><input id="carEngine" placeholder="1.6 TDI 77 kW">
+<button class="action" onclick="saveCar()">Uložit auto</button>
+<div id="carsList"></div>
+</section>
+
+<section id="servis" class="panel">
+<h2>Servisní záznamy</h2>
+<label>Auto</label><input id="serviceCar" placeholder="Škoda Octavia">
+<label>Datum</label><input id="serviceDate" type="date">
+<label>Co se dělalo</label><textarea id="serviceText" placeholder="Například výměna oleje, filtrů…"></textarea>
+<label>Cena v Kč</label><input id="servicePrice" inputmode="decimal" placeholder="1500">
+<button class="action" onclick="saveService()">Uložit záznam</button>
+<div id="serviceList"></div>
+</section>
+
+<section id="bezpecnost" class="panel">
+<h2>Bezpečnost</h2>
+<div class="item"><b>🔴 Červená kontrolka oleje</b><p>Bezpečně zastav a vypni motor. Pokračováním můžeš motor vážně poškodit.</p></div>
+<div class="item"><b>🌡️ Přehřátý motor</b><p>Zastav a nech motor vychladnout. Neotvírej horkou nádržku chladicí kapaliny.</p></div>
+<div class="item"><b>🛑 Problém s brzdami</b><p>Pokud brzdy nefungují správně, nepokračuj v jízdě. Zajisti odtah nebo odbornou kontrolu.</p></div>
+<div class="item"><b>⚠️ Důležité</b><p>Aplikace pomáhá s orientací, ale nenahrazuje odbornou diagnostiku ani servisní příručku.</p></div>
+</section>
+<footer>AutoPomoc • První verze • Údaje zůstávají uložené v tomto zařízení</footer>
+</main>
+
+<script>
+function showTab(id,btn){
+document.querySelectorAll('.panel').forEach(x=>x.classList.remove('active'));
+document.querySelectorAll('nav button').forEach(x=>x.classList.remove('active'));
+document.getElementById(id).classList.add('active');btn.classList.add('active');
+}
+const faults={
+'Motor nejde nastartovat':'Možné příčiny: slabá baterie, startér, pojistka, palivové čerpadlo nebo problém s imobilizérem. Zkontroluj, zda motor při startování točí a zda svítí kontrolky.',
+'Motor ztrácí výkon':'Možné příčiny: nouzový režim, turbo nebo netěsnost sání, váha vzduchu, palivový filtr, EGR či DPF. Načti diagnostické kódy a zkontroluj hadice.',
+'Motor kouří černě':'Možné příčiny: nedostatek vzduchu, netěsnost sání, EGR, vstřikování nebo turbo. U dieselu je důležité zkontrolovat vzduchový filtr a hodnoty diagnostiky.',
+'Motor se přehřívá':'Možné příčiny: nízká hladina chladicí kapaliny, termostat, ventilátor, chladič nebo vodní pumpa. Při přehřátí zastav a vypni motor.',
+'Motor se dlouho zahřívá':'Možné příčiny: termostat otevřený příliš brzy, čidlo teploty nebo kabeláž. Porovnej teplotu na diagnostice s ukazatelem.',
+'Auto cuká při jízdě':'Možné příčiny: zapalování u benzinu, vstřikování, palivový filtr, EGR, snímače nebo přívod vzduchu.',
+'Svítí kontrolka motoru':'Načti OBD kódy. Příčinou mohou být emise, snímače, zapalování, EGR, DPF nebo tlak turba. Blikající kontrolka u benzinu může znamenat vážný problém.',
+'Brzdy špatně brzdí':'Možné příčiny: únik kapaliny, vzduch v systému, závada hlavního válce nebo opotřebené brzdy. S autem nejezdi, dokud nejsou brzdy bezpečně zkontrolované.',
+'Auto vibruje':'Možné příčiny: nevyvážená kola, poškozená pneumatika, vůle v zavěšení nebo problém s poloosou. Vibrace při brzdění mohou souviset s brzdami.',
+'Roste spotřeba paliva':'Možné příčiny: tlak pneumatik, termostat, vzduchový filtr, snímače, vstřikování nebo DPF. Zkontroluj také styl jízdy.'
+};
+function findFault(){
+let s=document.getElementById('symptom').value;
+let r=document.getElementById('faultResult');r.hidden=false;
+r.textContent=(faults[s]||'Vyber příznak ze seznamu.')+(document.getElementById('detail').value?'\n\nDalší informace: '+document.getElementById('detail').value:'')+'\n\nJde o možné příčiny, nikoli potvrzenou diagnózu.';
+}
+const obd={
+P0299:'Nízký plnicí tlak turba. Možné příčiny: netěsnost hadic, turbo, regulace turba nebo snímač tlaku.',
+P0234:'Příliš vysoký plnicí tlak. Prověř regulaci turba, podtlaky a ovládání turba.',
+P0401:'Nedostatečný průtok EGR. Možné zanesení EGR, kanálů nebo závada ovládání.',
+P0101:'Rozsah nebo výkon váhy vzduchu mimo očekávání. Zkontroluj sání, kabeláž a měřené hodnoty.',
+P0115:'Závada obvodu čidla teploty chladicí kapaliny. Prověř čidlo, konektor a kabeláž.',
+P0300:'Náhodné vynechávání zapalování. U benzinu prověř svíčky, cívky, palivo a kompresi.',
+P0420:'Účinnost katalyzátoru pod limitem. Prověř netěsnosti výfuku a snímače; kód sám nepotvrzuje vadný katalyzátor.',
+P2002:'Účinnost DPF pod limitem. Zkontroluj filtr, snímače a netěsnosti výfuku.',
+P0087:'Nízký tlak paliva. Možné příčiny: filtr, čerpadlo, přívod paliva nebo regulace tlaku.',
+P0403:'Závada elektrického obvodu EGR. Prověř konektor, kabeláž a ovládání ventilu.'
+};
+function findOBD(){
+let c=document.getElementById('obdCode').value.trim().toUpperCase();
+let r=document.getElementById('obdResult');r.hidden=false;
+r.textContent=(obd[c]||'Tento kód nemám v základní databázi. Zkontroluj přesné označení a pošli celý kód včetně všech číslic.')+'\n\nVýznam se může lišit podle značky a motoru. Před výměnou dílů proveď další testy.';
+}
+const lights={
+oil:'Červená kontrolka tlaku oleje: bezpečně zastav a vypni motor. Zkontroluj hladinu až po bezpečném odstavení. Pokud kontrolka nezhasne, motor nestartuj.',
+temp:'Červená teplota: zastav, vypni motor a nech ho vychladnout. Neotvírej horkou expanzní nádržku.',
+brake:'Zkontroluj, zda není zatažená ruční brzda. Pokud kontrolka nezhasne, může být málo brzdové kapaliny nebo závada brzd. Bezpečně zastav a nepokračuj.',
+engine:'Oranžová kontrolka motoru: načti OBD kódy. Pokud bliká nebo motor silně cuká, bezpečně zastav. Při trvalém svícení nech závadu prověřit.',
+battery:'Kontrolka dobíjení: může být problém s alternátorem, řemenem nebo kabeláží. Bezpečně zastav a zajisti kontrolu.',
+dpf:'Kontrolka DPF: postupuj podle příručky konkrétního auta. Regeneraci neprováděj, pokud svítí další varování nebo je auto v nouzovém režimu.',
+abs:'Kontrolka ABS: běžné brzdění může fungovat, ale ABS může být vypnuté. Jeď opatrně a nech systém zkontrolovat.'
+};
+function findLight(){
+let l=document.getElementById('light').value;let r=document.getElementById('lightResult');r.hidden=false;
+r.textContent=lights[l]||'Vyber kontrolku ze seznamu.';
+}
+function getData(k){try{return JSON.parse(localStorage.getItem(k)||'[]')}catch(e){return []}}
+function putData(k,v){localStorage.setItem(k,JSON.stringify(v))}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+function saveCar(){
+let n=document.getElementById('carName').value.trim();
+if(!n){alert('Zadej značku a model auta.');return}
+let a=getData('apCars');a.push({name:n,year:document.getElementById('carYear').value,engine:document.getElementById('carEngine').value});putData('apCars',a);
+document.getElementById('carName').value='';document.getElementById('carYear').value='';document.getElementById('carEngine').value='';renderCars();
+}
+function renderCars(){
+let a=getData('apCars');document.getElementById('carsList').innerHTML=a.map((c,i)=>'<div class="item"><b>'+esc(c.name)+'</b><p>'+esc(c.year)+' '+esc(c.engine)+'</p><button onclick="deleteCar('+i+')">Smazat</button></div>').join('')||'<p class="small">Zatím tu nemáš uložené žádné auto.</p>';
+}
+function deleteCar(i){let a=getData('apCars');a.splice(i,1);putData('apCars',a);renderCars()}
+function saveService(){
+let car=document.getElementById('serviceCar').value.trim(),job=document.getElementById('serviceText').value.trim();
+if(!car||!job){alert('Vyplň auto a provedenou práci.');return}
+let a=getData('apService');a.push({car,date:document.getElementById('serviceDate').value,job,price:document.getElementById('servicePrice').value});putData('apService',a);
+document.getElementById('serviceText').value='';document.getElementById('servicePrice').value='';renderService();
+}
+function renderService(){
+let a=getData('apService');document.getElementById('serviceList').innerHTML=a.map((s,i)=>'<div class="item"><b>'+esc(s.car)+'</b><p>'+esc(s.date)+' • '+esc(s.job)+'</p><p>'+esc(s.price)+' Kč</p><button onclick="deleteService('+i+')">Smazat</button></div>').join('')||'<p class="small">Zatím žádné servisní záznamy.</p>';
+}
+function deleteService(i){let a=getData('apService');a.splice(i,1);putData('apService',a);renderService()}
+renderCars();renderService();
+</script>
+</body>
+</html>
