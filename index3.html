@@ -304,12 +304,29 @@ P0606:'Procesor řídicí jednotky – interní chyba; nutná odborná diagnosti
 P2463: 'DPF – nadměrné nahromadění sazí. Prověř diferenční tlak, snímače a příčinu zanášení filtru.',
 P2459: 'Četnost regenerace DPF mimo očekávání. Prověř podmínky regenerace a příčinu častého zanášení.',
   };
+
 function obdSearch(){
-let c=document.getElementById('code').value.trim().toUpperCase();
-let r=document.getElementById('obdResult');r.hidden=false;
-r.textContent=(obd[c]||'Tento kód není v základní databázi. Ověř přesný zápis a načti popis pro konkrétní značku.')+
-'\n\nDalší krok: ulož celý výpis diagnostiky a porovnej závadu s živými daty. Kód sám o sobě neznamená, že je vadný konkrétní díl.';
+  let c = document.getElementById('code').value.trim().toUpperCase();
+  let r = document.getElementById('obdResult');
+  r.hidden = false;
+
+  let popis = obd[c] ||
+    'Tento kód není v základní databázi. Ověř přesný zápis a zjisti přesný popis pro konkrétní značku.';
+
+  const opravy = {
+    P0299: 'POSTUP KONTROLY TURBA:\n1. Zkontroluj hadice turba a intercooleru, zda nejsou prasklé nebo uvolněné.\n2. Zkontroluj podtlakové hadičky a ovládání turba, pokud je motor používá.\n3. Diagnostikou porovnej požadovaný a skutečný plnicí tlak při zátěži.\n4. Prověř snímač tlaku, regulaci turba a případné netěsnosti sání.\n5. Turbo vyměň až po potvrzení závady.',
+    P0236: 'POSTUP KONTROLY SNÍMAČE TLAKU TURBA:\n1. Zkontroluj konektor a kabeláž snímače.\n2. Prověř hadice sání a intercooleru.\n3. Diagnostikou porovnej údaj plnicího tlaku s tlakem při vypnutém motoru a při běhu.\n4. Podle schématu změř napájení, kostru a signál snímače.\n5. Snímač vyměň až po ověření kabeláže a měření.',
+    P0671: 'POSTUP KONTROLY ŽHAVENÍ 1. VÁLCE:\n1. Na studeném motoru zkontroluj konektor a kabeláž žhavicí svíčky prvního válce.\n2. Změř odpor svíčky vhodným měřidlem a porovnej s údaji výrobce.\n3. Prověř napájení a řídicí modul žhavení.\n4. Vadnou svíčku vyměň za správný typ pro daný motor.\n5. Po opravě smaž kód a znovu načti diagnostiku.'
+  };
+
+  let postup = opravy[c] ||
+    'POSTUP KONTROLY:\n1. Zapiš všechny chybové kódy a jejich stav.\n2. Zkontroluj konektory, kabeláž, hadice a pojistky související se závadou.\n3. Pokud je to možné, porovnej živá data diagnostiky s hodnotami předepsanými výrobcem.\n4. Ověř příčinu před výměnou dílu.\n5. Po opravě kódy smaž a proveď opakovanou kontrolu.';
+
+  r.textContent = 'KÓD: ' + c + '\n\nPOPIS:\n' + popis +
+    '\n\n' + postup +
+    '\n\nUPOZORNĚNÍ: Postup přizpůsob konkrétnímu vozidlu a motoru. Kód sám o sobě nepotvrzuje vadný díl.';
 }
+
 const lights={
 oil:'ČERVENÁ: Bezpečně zastav a vypni motor. Nejezdi dál, dokud není ověřen tlak oleje.',
 temp:'ČERVENÁ: Zastav a vypni motor. Neotvírej horkou expanzní nádržku.',
