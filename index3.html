@@ -349,6 +349,39 @@ function deleteService(i){let a=get('ap2service');a.splice(i,1);if(put('ap2servi
 function models(){}
 renderCars();renderService();
 </script>
+  <section style="padding:16px;margin:16px 0;border:1px solid #ccc;border-radius:12px;">
+<h2>Diagnostika podle příznaků</h2>
+<p>Vyber, co auto dělá:</p>
+<select id="symptomSelect" style="width:100%;padding:12px;margin-bottom:12px;">
+<option value="limp">Auto ztrácí výkon nebo je v nouzovém režimu</option>
+<option value="smoke">Motor kouří černě</option>
+<option value="dpf">DPF často regeneruje</option>
+<option value="cold">Motor se nezahřívá na 90 °C</option>
+<option value="start">Auto špatně startuje</option>
+<option value="engine">Svítí kontrolka motoru</option>
+<option value="gearbox">Automat špatně řadí</option>
+</select>
+<button type="button" onclick="symptomSearch()" style="padding:12px;width:100%;">
+Najít možné příčiny
+</button>
+<div id="symptomResult" style="white-space:pre-wrap;margin-top:16px;"></div>
+</section>
+<script>
+const symptomData = {
+limp: "MOŽNÉ PŘÍČINY\n• Turbo nebo regulace tlaku\n• Netěsná hadice sání\n• EGR, DPF nebo snímač\n\nPOSTUP\n1. Načti chybové kódy.\n2. Zkontroluj hadice a konektory.\n3. Porovnej požadovaný a skutečný tlak.",
+smoke: "MOŽNÉ PŘÍČINY\n• Nedostatek vzduchu\n• Netěsné sání nebo turbo\n• EGR či vstřikování\n\nPOSTUP\n1. Zkontroluj vzduchový filtr a hadice.\n2. Načti závady.\n3. Prověř živá data.",
+dpf: "MOŽNÉ PŘÍČINY\n• Přerušované regenerace\n• Snímač diferenčního tlaku\n• Teplotní snímač nebo problém motoru\n\nPOSTUP\n1. Načti závady.\n2. Zkontroluj tlak DPF a množství sazí.\n3. Ověř teplotu motoru.",
+cold: "MOŽNÉ PŘÍČINY\n• Vadný termostat\n• Snímač teploty\n• Kabeláž\n\nPOSTUP\n1. Porovnej teplotu na přístrojové desce s diagnostikou.\n2. Sleduj zahřívání motoru.\n3. Prověř termostat.",
+start: "MOŽNÉ PŘÍČINY\n• Slabá baterie\n• Startér\n• Přívod paliva\n• U dieselu také žhavení\n\nPOSTUP\n1. Změř baterii při startování.\n2. Načti závady.\n3. Zkontroluj palivo a otáčky při startu.",
+engine: "MOŽNÉ PŘÍČINY\n• Snímač nebo kabeláž\n• Problém se směsí či emisemi\n• Závada motoru\n\nPOSTUP\n1. Načti přesný chybový kód.\n2. Před smazáním si kód poznamenej.\n3. Hledej příčinu podle konkrétního kódu.",
+gearbox: "MOŽNÉ PŘÍČINY\n• Problém s náplní\n• Snímač nebo řídicí jednotka\n• Mechanická či hydraulická závada\n\nPOSTUP\n1. Načti závady převodovky.\n2. Zkontroluj živá data.\n3. Při silném prokluzování nebo škubání nepokračuj v jízdě."
+};
+function symptomSearch() {
+  const key = document.getElementById("symptomSelect").value;
+  document.getElementById("symptomResult").textContent =
+    symptomData[key] || "Pro tento příznak zatím nemáme postup.";
+}
+</script>
 </body>
 </html>
 <div style="margin:20px;padding:16px;background:#172033;color:white;border-radius:12px;text-align:center;">
